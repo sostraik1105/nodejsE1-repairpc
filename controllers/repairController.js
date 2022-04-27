@@ -119,4 +119,5 @@ module.exports = {
     getPendingById,
     updateRepair,
     cancelRepair,
+    getRepairById,
 };

@@ -6,12 +6,14 @@ const {
     getPendingById,
     updateRepair,
     cancelRepair,
+    getRepairById,
 } = require('../controllers/repairController');
 
 const router = Router();
 
 router.get('/', getPendingRepairs);
 router.get('/all', getAllRepairs);
+router.get('/all/:id', getRepairById);
 router.post('/', createNewRepair);
 router
     .route('/:id')
