@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const {
     getPendingRepairs,
+    getAllRepairs,
     createNewRepair,
     getPendingById,
     updateRepair,
@@ -10,6 +11,7 @@ const {
 const router = Router();
 
 router.get('/', getPendingRepairs);
+router.get('/all', getAllRepairs);
 router.post('/', createNewRepair);
 router
     .route('/:id')
