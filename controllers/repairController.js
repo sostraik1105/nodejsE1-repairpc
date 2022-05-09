@@ -1,116 +1,88 @@
 const { Repair } = require('../models/repairs');
+const { AppError } = require('../utils/appError');
+const { errorHandler } = require('../utils/errorHandler');
 
-const getPendingRepairs = async (req, res) => {
-    try {
-        const repairs = await Repair.findAll({ where: { status: 'pending' } });
+const getPendingRepairs = errorHandler(async (req, res) => {
+    const repairs = await Repair.findAll({
+        where: { status: 'pending' },
+    });
 
-        res.status(200).json(repairs);
-    } catch (error) {
-        res.status(400).json(error);
+    res.status(200).json(repairs);
+});
+
+const getAllRepairs = errorHandler(async (req, res) => {
+    const repairs = await Repair.findAll();
+
+    res.status(200).json(repairs);
+});
+
+const getPendingById = errorHandler(async (req, res, next) => {
+    const { id } = req.params;
+
+    const repair = await Repair.findOne({
+        where: { id, status: 'pending' },
+    });
+
+    if (!repair) {
+        return next(new AppError('Repair not found', 404));
     }
-};
 
-const getAllRepairs = async (req, res) => {
-    try {
-        const repairs = await Repair.findAll();
+    res.status(201).json({ repair });
+});
 
-        res.status(200).json(repairs);
-    } catch (error) {
-        res.status(400).json(error);
+const getRepairById = errorHandler(async (req, res, next) => {
+    const { id } = req.params;
+
+    const repair = await Repair.findOne({
+        where: { id },
+    });
+
+    if (!repair) {
+        return next(new AppError('Repair not found', 404));
     }
-};
 
-const getPendingById = async (req, res) => {
-    try {
-        const { id } = req.params;
+    res.status(201).json({ repair });
+});
 
-        const repair = await Repair.findOne({
-            where: { id, status: 'pending' },
-        });
+const createNewRepair = errorHandler(async (req, res, next) => {
+    const { date, computerNumber, comments, status, userId } = req.body;
+    const newRepair = await Repair.create({
+        date,
+        computerNumber,
+        comments,
+        status,
+        userId,
+    });
+    res.status(201).json({ newRepair });
+});
 
-        if (!repair) {
-            return res.status(404).json({
-                status: 'Error',
-                message: 'Repair not found',
-            });
-        }
+const updateRepair = errorHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const repair = await Repair.findOne({
+        where: { id, status: 'pending' },
+    });
 
-        res.status(201).json({ repair });
-    } catch (error) {
-        res.status(400).json(error);
+    if (!repair) {
+        return next(new AppError('Repair not found', 404));
     }
-};
 
-const getRepairById = async (req, res) => {
-    try {
-        const { id } = req.params;
+    await repair.update({ status });
 
-        const repair = await Repair.findOne({
-            where: { id },
-        });
+    res.status(201).json({ repair });
+});
 
-        if (!repair) {
-            return res.status(404).json({
-                status: 'Error',
-                message: 'Repair not found',
-            });
-        }
+const cancelRepair = errorHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const repair = await Repair.findOne({ where: { id } });
 
-        res.status(201).json({ repair });
-    } catch (error) {
-        res.status(400).json(error);
+    if (!repair) {
+        return next(new AppError('Repair not found', 404));
     }
-};
 
-const createNewRepair = async (req, res) => {
-    try {
-        const { date, status, userId } = req.body;
-        const newRepair = await Repair.create({ date, status, userId });
-        res.status(201).json({ newRepair });
-    } catch (error) {
-        res.status(400).json(error);
-    }
-};
-
-const updateRepair = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { date, status, userId } = req.body;
-        const repair = await Repair.findOne({
-            where: { id, status: 'pending' },
-        });
-
-        if (!repair) {
-            return res.status(404).json({
-                status: 'Error',
-                message: 'Repair not found',
-            });
-        }
-
-        await repair.update({ date, status, userId });
-
-        res.status(201).json({ repair });
-    } catch (error) {}
-};
-
-const cancelRepair = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const repair = await Repair.findOne({ where: { id } });
-
-        if (!repair) {
-            return res.status(404).json({
-                status: 'Error',
-                message: 'Repair not found',
-            });
-        }
-
-        await repair.update({ status: 'cancelled' });
-        res.status(200).json({ status: 'success' });
-    } catch (error) {
-        res.status(400).json(error);
-    }
-};
+    await repair.update({ status: 'cancelled' });
+    res.status(200).json({ status: 'success' });
+});
 
 module.exports = {
     getPendingRepairs,
