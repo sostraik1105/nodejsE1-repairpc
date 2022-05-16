@@ -1,4 +1,12 @@
 const { Router } = require('express');
+
+const { userExists } = require('../middlewares/users.middlewares');
+
+const {
+    createUsersValidations,
+    checkValidations,
+} = require('../middlewares/validation.middlewares');
+
 const {
     createUser,
     findById,
@@ -10,7 +18,11 @@ const {
 const router = Router();
 
 router.get('/', getAllUsers);
-router.post('/', createUser);
-router.route('/:id').get(findById).patch(updateUser).delete(deleteUser);
+router.post('/', createUsersValidations, checkValidations, createUser);
+router
+    .route('/:id')
+    .get(userExists, findById)
+    .patch(userExists, updateUser)
+    .delete(userExists, deleteUser);
 
 module.exports = { userRoutes: router };

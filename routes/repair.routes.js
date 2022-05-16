@@ -3,6 +3,11 @@ const { Router } = require('express');
 const { repairPending } = require('../middlewares/repairs.middleware');
 
 const {
+    createRequireValidations,
+    checkValidations,
+} = require('../middlewares/validation.middlewares');
+
+const {
     getPendingRepairs,
     getAllRepairs,
     createNewRepair,
@@ -17,7 +22,7 @@ const router = Router();
 router.get('/', getPendingRepairs);
 router.get('/all', getAllRepairs);
 router.get('/all/:id', getRepairById);
-router.post('/', createNewRepair);
+router.post('/', createRequireValidations, checkValidations, createNewRepair);
 router
     .route('/:id')
     .get(repairPending, getPendingById)
