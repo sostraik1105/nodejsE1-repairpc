@@ -21,7 +21,7 @@ const router = Router();
 
 router.get('/', getPendingRepairs);
 router.get('/all', getAllRepairs);
-router.get('/all/:id', getRepairById);
+router.get('/all/:id', repairPending, getRepairById);
 router.post('/', createRequireValidations, checkValidations, createNewRepair);
 router
     .route('/:id')

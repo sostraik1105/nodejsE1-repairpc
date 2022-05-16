@@ -12,7 +12,6 @@ const getPendingRepairs = errorHandler(async (req, res) => {
 
 const getAllRepairs = errorHandler(async (req, res) => {
     const repairs = await Repair.findAll();
-
     res.status(200).json(repairs);
 });
 
@@ -31,16 +30,7 @@ const getPendingById = errorHandler(async (req, res, next) => {
 });
 
 const getRepairById = errorHandler(async (req, res, next) => {
-    const { id } = req.params;
-
-    const repair = await Repair.findOne({
-        where: { id },
-    });
-
-    if (!repair) {
-        return next(new AppError('Repair not found', 404));
-    }
-
+    const { repair } = req;
     res.status(201).json({ repair });
 });
 
@@ -57,15 +47,8 @@ const createNewRepair = errorHandler(async (req, res, next) => {
 });
 
 const updateRepair = errorHandler(async (req, res, next) => {
-    const { id } = req.params;
+    const { repair } = req;
     const { status } = req.body;
-    const repair = await Repair.findOne({
-        where: { id, status: 'pending' },
-    });
-
-    if (!repair) {
-        return next(new AppError('Repair not found', 404));
-    }
 
     await repair.update({ status });
 

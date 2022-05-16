@@ -1,9 +1,13 @@
+const bcrypt = require('bcryptjs');
+
 const { User } = require('../models/users');
 const { AppError } = require('../utils/appError');
 const { errorHandler } = require('../utils/errorHandler');
 
 const getAllUsers = errorHandler(async (req, res, next) => {
-    const users = await User.findAll();
+    const users = await User.findAll({
+        attributes: { exclude: ['password'] },
+    });
 
     res.status(200).json({ users });
 });
@@ -11,57 +15,36 @@ const getAllUsers = errorHandler(async (req, res, next) => {
 const createUser = errorHandler(async (req, res, next) => {
     const { name, email, password, role, status } = req.body;
 
+    const salt = await bcrypt.genSalt(12);
+    const hashPassword = await bcrypt.hash(password, salt);
+
     const newUser = await User.create({
         name,
         email,
-        password,
+        password: hashPassword,
         role,
         status,
     });
+
+    newUser.password = undefined;
 
     res.status(201).json({ newUser });
 });
 
 const findById = errorHandler(async (req, res, next) => {
-    const { id } = req.params;
-
-    const selectedUser = await User.findOne({ where: { id } });
-
-    if (!selectedUser) {
-        return res.status(404).json({
-            status: 'Error',
-            message: 'User not found given that id',
-        });
-    }
-
-    res.status(201).json({ selectedUser });
+    const { user } = req;
+    res.status(201).json({ user });
 });
 
 const updateUser = errorHandler(async (req, res, next) => {
-    const { id } = req.params;
+    const { user } = req;
     const { name, email, password, role, status } = req.body;
-    const user = await User.findOne({ where: { id } });
-
-    if (!user) {
-        return next(new AppError('User not found given that id', 404));
-    }
-
     await user.update({ name, email, password, role, status });
-
     res.status(200).json({ status: 'success' });
 });
 
 const deleteUser = errorHandler(async (req, res, next) => {
-    const { id } = req.params;
-    const user = await User.findOne({ where: { id } });
-
-    if (!user) {
-        return res.status(404).json({
-            status: 'Error',
-            message: 'User not found given that id',
-        });
-    }
-
+    const { user } = req;
     await user.update({ status: 'disabled' });
     res.status(200).json({ status: 'success' });
 });

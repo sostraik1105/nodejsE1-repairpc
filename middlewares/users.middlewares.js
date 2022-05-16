@@ -8,6 +8,7 @@ const userExists = errorHandler(async (req, res, next) => {
 
     const user = await User.findOne({
         where: { id },
+        attributes: { exclude: ['password'] },
     });
 
     if (!user) {
