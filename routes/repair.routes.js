@@ -3,6 +3,11 @@ const { Router } = require('express');
 const { repairPending } = require('../middlewares/repairs.middleware');
 
 const {
+    protectToken,
+    protectEmployee,
+} = require('../middlewares/users.middlewares');
+
+const {
     createRequireValidations,
     checkValidations,
 } = require('../middlewares/validation.middlewares');
@@ -19,9 +24,10 @@ const {
 
 const router = Router();
 
-router.get('/', getPendingRepairs);
-router.get('/all', getAllRepairs);
+router.use(protectToken, protectEmployee);
 router.get('/all/:id', repairPending, getRepairById);
+router.get('/all', getAllRepairs);
+router.get('/', getPendingRepairs);
 router.post('/', createRequireValidations, checkValidations, createNewRepair);
 router
     .route('/:id')
