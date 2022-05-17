@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 
 const { User } = require('../models/users');
-const { AppError } = require('../utils/appError');
 const { errorHandler } = require('../utils/errorHandler');
 
 const getAllUsers = errorHandler(async (req, res, next) => {

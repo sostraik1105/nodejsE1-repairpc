@@ -19,6 +19,7 @@ const router = Router();
 
 router.get('/', getAllUsers);
 router.post('/', createUsersValidations, checkValidations, createUser);
+router.post('/login');
 router
     .route('/:id')
     .get(userExists, findById)

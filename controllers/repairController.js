@@ -49,20 +49,12 @@ const createNewRepair = errorHandler(async (req, res, next) => {
 const updateRepair = errorHandler(async (req, res, next) => {
     const { repair } = req;
     const { status } = req.body;
-
     await repair.update({ status });
-
     res.status(201).json({ repair });
 });
 
 const cancelRepair = errorHandler(async (req, res, next) => {
-    const { id } = req.params;
-    const repair = await Repair.findOne({ where: { id } });
-
-    if (!repair) {
-        return next(new AppError('Repair not found', 404));
-    }
-
+    const { repair } = req;
     await repair.update({ status: 'cancelled' });
     res.status(200).json({ status: 'success' });
 });
